@@ -1,0 +1,44 @@
+[HIT Configuration]
+title = TITLE
+description = DESCRIPTION
+amt_keywords = AMT_KEYWORDS
+lifetime = 24
+us_only = true
+approve_requirement = 95
+number_hits_approved = 100
+require_master_workers = false
+contact_email_on_error = person@website.dom 
+ad_group = AD_GROUP
+psiturk_keywords = PSITURK_KEYWORDS
+organization_name = ORG_NAME
+browser_exclude_rule = MSIE, mobile, tablet
+allow_repeats = false
+
+[Database Parameters]
+database_url = mydatabase
+table_name = construal
+
+[Server Parameters]
+host = 0.0.0.0
+port = 22362
+cutoff_time = 30
+logfile = server.log
+loglevel = 1
+debug = false
+login_username = myusername
+login_pw = mypassword
+threads = 1
+secret_key = 'MYSECRETKEY_CHANGEME'
+adserver_revproxy_host = {{ app_url }}
+recaptcha_key = 6LchQbwaAAAAAKU8rgM1heymcb5paz5xrKAtu_5K
+
+[Task Parameters]
+experiment_code_version = default_codeversion
+num_conds = 1
+num_counters = 1
+
+[Shell Parameters]
+launch_in_sandbox_mode = true
+bonus_message = "Thanks for participating!"
+use_psiturk_ad_server = false
+ad_location = website.com 

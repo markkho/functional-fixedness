@@ -1,0 +1,96 @@
+{
+    "params": {
+        "cutoff_time_min": 30,
+        "expectedTime": "15 minutes",
+        "recruitment_platform": "prolific",
+        "EXPERIMENT_CODE_VERSION": "ABCDE"
+    },
+    "preloadImages" : [],
+    "timelines" : [
+        [
+            {
+  "type": "GridNavigation",
+  "trialparams": {
+    "transform": "hflip",
+    "start_goal": "@$",
+    "grid_name": "2-C",
+    "round_type": "coarse_training",
+    "round": 0,
+    "participantStarts": true,
+    "bonus": true,
+    "goalCountdown": true,
+    "hideObstaclesOnMove": false,
+    "message": "&nbsp;",
+    "TILE_SIZE": 40,
+    "INITIALGOAL_COUNTDOWN_MILLISEC": 10000
+  },
+  "taskparams": {
+    "tile_array": [
+      "............$",
+      ".............",
+      "........ccC..",
+      ".....###CCC..",
+      "........cCC..",
+      "aAA#bbb..#...",
+      "aAA#BBB..#...",
+      "AAa#BBB..#DdD",
+      "..........DdD",
+      ".....###..DDd",
+      ".............",
+      ".............",
+      "@............"
+    ],
+    "absorbing_features": [
+      "$"
+    ],
+    "wall_features": [
+      "#",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H"
+    ],
+    "default_features": [
+      "."
+    ],
+    "initial_features": [
+      "@"
+    ],
+    "feature_rewards": {
+      "$": 0
+    },
+    "step_cost": -1,
+    "wall_bump_cost": -5,
+    "feature_colors": {
+      "@": "white",
+      ".": "white",
+      "A": "rgba(173, 216, 230, 1.)",
+      "B": "rgba(173, 216, 230, 1.)",
+      "C": "rgba(173, 216, 230, 1.)",
+      "D": "rgba(173, 216, 230, 1.)",
+      "E": "rgba(173, 216, 230, 1.)",
+      "F": "rgba(173, 216, 230, 1.)",
+      "G": "rgba(173, 216, 230, 1.)",
+      "a": "rgba(173, 216, 230, .5)",
+      "b": "rgba(173, 216, 230, .5)",
+      "c": "rgba(173, 216, 230, .5)",
+      "d": "rgba(173, 216, 230, .5)",
+      "e": "rgba(173, 216, 230, .5)",
+      "f": "rgba(173, 216, 230, .5)",
+      "g": "rgba(173, 216, 230, .5)",
+      "#": "black",
+      "$": "yellow"
+    }
+  }
+}
+
+
+
+
+        ]
+    ]
+}
