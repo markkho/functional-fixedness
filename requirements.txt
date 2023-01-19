@@ -1,0 +1,5 @@
+jupyterlab
+joblib
+pandas
+seaborn
+msdm=0.10
