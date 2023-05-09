@@ -7,6 +7,7 @@ import sys
 import functools
 import configparser
 import datetime
+from typing import Iterable, List, Tuple, Dict, Any, Optional, Union, Callable, Sequence, Mapping, Set, Type, NamedTuple
 
 import pandas as pd
 import numpy as np
@@ -379,11 +380,11 @@ class ParticipantData(ParticipantDataBase):
             self.sessionId = None
         
     @method_cache
-    def main_trials(self):
+    def main_trials(self) -> List[GridNavigationTrialData]:
         return self.training_trials() + self.test_trials()
     
     @method_cache
-    def training_trials(self):
+    def training_trials(self) -> List[GridNavigationTrialData]:
         tt = []
         for t in self.trials:
             if t['trial_type'] == "GridNavigation" and 'training' in t['data']['trialparams']['roundtype']:
@@ -391,7 +392,7 @@ class ParticipantData(ParticipantDataBase):
         return tt
     
     @method_cache
-    def test_trials(self):
+    def test_trials(self) -> List[GridNavigationTrialData]:
         tt = []
         for t in self.trials:
             if t['trial_type'] == "GridNavigation" and t['data']['trialparams']['roundtype'] in ['test']:
@@ -419,9 +420,9 @@ class ParticipantData(ParticipantDataBase):
         return tt[0]['data']
 
     @property
-    def condition_name(self):
+    def condition_name(self) -> str:
         return self.final_global_store()['condition_name']
-    def summary(self):
+    def summary(self) -> dict:
         gstore = {
             k: v for k, v in self.final_global_store().items()
             if k in ["sessionId","bonusDollars","condition","condition_name"]
@@ -439,7 +440,7 @@ class ParticipantData(ParticipantDataBase):
             "mean_test_steps": np.mean([t.timesteps for t in test]),
             "total_exp_time": self.total_exp_time
         }
-    def test_trials_summary(self):
+    def test_trials_summary(self) -> List[dict]:
         tts = []
         psummary = self.summary()
         for t in self.test_trials():
@@ -492,10 +493,10 @@ class ExperimentDataLoader:
                 print(e)
         self.participant_data = participant_data
     
-    def participants(self):
+    def participants(self) -> Iterable[ParticipantData]:
         return self.participant_data
     
-    def completed_participant_data(self):
+    def completed_participant_data(self) -> Iterable[ParticipantData]:
         for p in self.participant_data:
             if p.is_debug:
                 continue
@@ -503,7 +504,7 @@ class ExperimentDataLoader:
                 continue
             yield p
     
-    def test_trials(self):
+    def test_trials(self) -> pd.DataFrame:
         p_test = []
         for p in self.completed_participant_data():
             df = pd.DataFrame([t.summary() for t in p.test_trials()])
@@ -514,9 +515,9 @@ class ExperimentDataLoader:
     def plot_participant_trials(self):
         for p in self.completed_participant_data():
             p.plot_trials()
-    def summary_dataframe(self):
+    def summary_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(p.summary() for p in self.completed_participant_data())
-    def bonus_string(self):
+    def bonus_string(self) -> str:
         bonusdf = self.summary_dataframe()[["prolific_id", "bonusDollars"]]
         bonusdf = bonusdf[bonusdf.bonusDollars > 0]
         assert all(bonusdf.bonusDollars < 2.5)
