@@ -9,7 +9,7 @@ from msdm.core.table.tableindex import domaintuple
 
 from construal_shifting.construal import construal_level
 from construal_shifting.task_modeling.construal_trial_model import ConstrualTrialModel
-from construal_shifting.task_modeling.base_dataclasses import ParticipantDataBase
+from construal_shifting.task_modeling.base_dataclasses import ParticipantDataBase, GridNavigationTrialDataBase
 
 def coarse_identifier(c):
     return construal_level(c) == 'coarse'
@@ -229,7 +229,7 @@ class ParticipantModel:
         ptrials = self.participant_data.main_trials()
         for transition, probs in traj_margs.items():
             trial_num = transition[1]
-            trial = ptrials[trial_num]
+            trial : GridNavigationTrialDataBase = ptrials[trial_num]
             stats = {
                 (last_cset, cset[0]): probs[last_cset, cset]
                 for last_cset, cset in probs.table_index.product()

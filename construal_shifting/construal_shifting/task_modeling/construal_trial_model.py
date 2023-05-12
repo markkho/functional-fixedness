@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 from msdm.core.utils.funcutils import cached_property
 from msdm.core.distributions import DictDistribution
@@ -8,6 +9,8 @@ from msdm.core.mdp.tables import StateTable
 
 from construal_shifting.construal import maze_construals, construal_size
 from construal_shifting.task_modeling.cached_gridworld import GridWorld
+
+from msdm.core.mdp import  TabularPolicy
 
 class ConstrualTrialModel:
     # this logic makes it so we only create a single 
@@ -32,7 +35,7 @@ class ConstrualTrialModel:
             self.__cache__[self.instance_key(**trial_params)] = self
         self.trial_params = trial_params
     @cached_property
-    def true_mdp(self):
+    def true_mdp(self) -> GridWorld:
         return GridWorld(**self.trial_params)
     @cached_property
     def construal_tile_arrays(self):
@@ -170,7 +173,7 @@ class ConstrualTrialModel:
         self,
         action_inverse_temp=float('inf'),
         action_random_choice=0.0
-    ):
+    ) -> np.ndarray:
         if action_inverse_temp == float('inf'):
             computed_plans = self.computed_plans_matrix
         else:
@@ -223,3 +226,86 @@ class ConstrualTrialModel:
     def clear_instance_method_caches(cls):
         for inst in cls.__cache__.values():
             inst.clear_method_caches()
+
+    def simulate_trial(
+        self,
+        last_cset,
+        construal_cost_weight,
+        construal_inverse_temp,
+        action_inverse_temp,
+        action_random_choice,
+        construal_set_stickiness,
+        trial_index = None,
+        grid_name = None,
+        rng : random.Random = random,
+    ) -> "SimulatedGridNavigationTrialData":
+        # avoid circular import
+        from construal_shifting.task_modeling.participant_model import coarse_identifier, fine_identifier
+        from construal_shifting.task_modeling.simulated_participant_model import SimulatedGridNavigationTrialData
+
+        # also get cset values
+        coarse_val = self.construal_set_value(
+            construal_prior=coarse_identifier,
+            construal_cost_weight=construal_cost_weight,
+            construal_inverse_temp=construal_inverse_temp,
+        )
+        fine_val = self.construal_set_value(
+            construal_prior=fine_identifier,
+            construal_cost_weight=construal_cost_weight,
+            construal_inverse_temp=construal_inverse_temp,
+        )
+        set_values = np.array([coarse_val, fine_val])
+
+        # sample a next construal set based on intrinsic and stickiness value
+        set_nextset_switch_cost = (1 - np.eye(2))*construal_set_stickiness
+        set_nextset_values = set_values[None, :] - set_nextset_switch_cost
+        set_nextset_values = np.exp(set_nextset_values)
+        set_nextset_values /= set_nextset_values.sum(-1, keepdims=True)
+        cset_tf = set_nextset_values[['coarse', 'fine'].index(last_cset)]
+        cset = rng.choices(['coarse', 'fine'], weights=cset_tf)[0]
+
+        # sample a construal and computed plan
+        c_probs = self._construal_posterior(
+            construal_cost_weight=construal_cost_weight,
+            construal_inverse_temp=construal_inverse_temp,
+            construal_prior={'fine': fine_identifier, 'coarse': coarse_identifier}[cset],
+        )
+        c_i = rng.choices(range(len(c_probs)), weights=c_probs)[0]
+        computed_plans = self.epsilon_softmax_policies(
+            action_inverse_temp=action_inverse_temp,
+            action_random_choice=action_random_choice
+        )
+        cpolicy = TabularPolicy.from_state_action_lists(
+            state_list=self.true_mdp.state_list,
+            action_list=self.true_mdp.action_list,
+            data=computed_plans[c_i]
+        )
+        sim_res = cpolicy.run_on(self.true_mdp, rng=rng)
+        coarse_cognitive_cost = self.construal_set_cognitive_cost(
+            construal_cost_weight=construal_cost_weight,
+            construal_inverse_temp=construal_inverse_temp,
+            construal_prior=coarse_identifier
+        )
+        fine_cognitive_cost = self.construal_set_cognitive_cost(
+            construal_cost_weight=construal_cost_weight,
+            construal_inverse_temp=construal_inverse_temp,
+            construal_prior=fine_identifier
+        )
+        state_traj = [(x, y) for x, y in sim_res.state]
+        assert self.true_mdp.is_absorbing(state_traj[-1])
+        action_traj = [a for a in sim_res.action if a is not None]
+        return SimulatedGridNavigationTrialData(
+            trial_params=self.trial_params,
+            coarse_set_cognitive_cost=coarse_cognitive_cost,
+            fine_set_cognitive_cost=fine_cognitive_cost,
+            state_traj=state_traj,
+            action_traj=action_traj,
+            construal_cost_weight=construal_cost_weight,
+            construal_inverse_temp=construal_inverse_temp,
+            action_inverse_temp=action_inverse_temp,
+            action_random_choice=action_random_choice,
+            construal_set_stickiness=construal_set_stickiness,
+            current_construal_set=cset,
+            trial_index=trial_index,
+            grid_name=grid_name,
+        )
