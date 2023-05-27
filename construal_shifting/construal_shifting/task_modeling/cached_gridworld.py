@@ -23,7 +23,8 @@ class GridWorld(GridMDP):
         step_cost=-1,
         wall_bump_cost=0,
         success_prob=1.0,
-        discount_rate=1.0
+        discount_rate=1.0,
+        wait_action=False,
     ):
         super().__init__('\n'.join(tile_array))
         self.tile_array = np.array([list(row) for row in tile_array[::-1]])
@@ -37,7 +38,8 @@ class GridWorld(GridMDP):
         self.template = self.__class__.get_template(
             height=self.tile_array.shape[0],
             width=self.tile_array.shape[1],
-            step_cost=step_cost
+            step_cost=step_cost,
+            wait_action=wait_action,
         )
     
     def plot(self, feature_colors=None, feature_markers=None, ax=None):
@@ -124,8 +126,11 @@ class GridWorld(GridMDP):
         initial_state_vec.setflags(write=False)
         return initial_state_vec
     @classmethod
-    def get_template(cls, height, width, step_cost):
-        actions = domaintuple([(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)])
+    def get_template(cls, height, width, step_cost, wait_action):
+        if wait_action:
+            actions = domaintuple([(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)])
+        else:
+            actions = domaintuple([(0, 1), (0, -1), (1, 0), (-1, 0)])
         key = (height, width, step_cost, actions)
         try:
             template = cls._templates[key]
