@@ -74,7 +74,7 @@ class SimulatedParticipantData(ParticipantDataBase):
         self.action_random_choice = action_random_choice
         self.construal_set_stickiness = construal_set_stickiness
 
-    def main_trials(self) -> Sequence[GridNavigationTrialDataBase]:
+    def main_trials(self) -> Sequence["SimulatedGridNavigationTrialData"]:
         return self._main_trials
     def summary(self):
         return dict(

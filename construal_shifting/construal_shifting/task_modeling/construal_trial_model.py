@@ -12,6 +12,10 @@ from construal_shifting.task_modeling.cached_gridworld import GridWorld
 
 from msdm.core.mdp import  TabularPolicy
 
+import typing
+if typing.TYPE_CHECKING:
+    from construal_shifting.task_modeling.simulated_participant_model import SimulatedGridNavigationTrialData
+
 class ConstrualTrialModel:
     # this logic makes it so we only create a single 
     # object for each set of parameters

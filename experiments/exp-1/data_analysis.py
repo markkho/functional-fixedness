@@ -156,7 +156,12 @@ def calculate_critical_notch_locs(tile_array):
         **gw_params,
         discount_rate=1
     )
-    unavoidable_locs = {loc for loc, prob in pi.policy.evaluate_on(gw).occupancy.items() if prob == 1.0}
+    policy_eval = pi.policy.evaluate_on(gw)
+    try:
+        occupancy = policy_eval.occupancy
+    except AttributeError:
+        occupancy = policy_eval.state_occupancy
+    unavoidable_locs = {loc for loc, prob in occupancy.items() if prob == 1.0}
     notch_locs = set([])
     for f in 'abcdefg':
         if f in gw.feature_locations:
