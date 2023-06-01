@@ -78,7 +78,7 @@ def _cached_construal_utility(construal_tilestring, evaluation_tilestring, gw_pa
         **gw_params
     )
     pi_res = PolicyIteration(
-        iterations=200, check_unreachable_convergence=False
+        max_iterations=200
     ).plan_on(c_gw)
     v0 = pi_res.policy.evaluate_on(gw).initial_value
     return v0
